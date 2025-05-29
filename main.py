@@ -35,9 +35,14 @@ def read_root():
     return {"message": "Tarefas"}
 
 @app.get("/tarefinhas")
-def get_tarefinhas(page: int=1, limit: int=10, credentials: HTTPBasicCredentials = Depends(autenticate_user)):
+def get_tarefinhas(
+    page: int = 1,
+    limit: int = 10,
+    sort_by: str = "nome",
+    credentials: HTTPBasicCredentials = Depends(autenticate_user)
+):
     
-    if page < 1 or limit< 1:
+    if page < 1 or limit < 1:
         raise HTTPException(status_code=400, detail="Não é possível acessar paginas menores que 0")
 
     if not Dict_tarefinhas:
@@ -47,10 +52,18 @@ def get_tarefinhas(page: int=1, limit: int=10, credentials: HTTPBasicCredentials
     start = (page - 1) * limit
     end = start + limit
     
+    # Ordena as tarefas pelo campo escolhido
+    if sort_by not in ["nome", "descricao"]:
+        raise HTTPException(status_code=400, detail="Campo de ordenação inválido")
+
+    if sort_by == "nome":
+        Tarefas_ordenadas = sorted(Dict_tarefinhas.items(), key=lambda x: x[0])
+    else:
+        Tarefas_ordenadas = sorted(Dict_tarefinhas.items(), key=lambda x: x[1]["descricao"])
     
     tarefinhas_paginadas = [
         {"nome": nome , "descricao": tarefa["descricao"], "concluida": tarefa["concluida"]}
-        for nome, tarefa in list(Dict_tarefinhas.items())[start:end]
+        for nome, tarefa in Tarefas_ordenadas[start:end]
     ]
 
     return {
