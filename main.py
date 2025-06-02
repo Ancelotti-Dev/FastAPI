@@ -3,6 +3,11 @@ from pydantic import BaseModel
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 import secrets
 import os
+from sqlalchemy import create_engine, Column, Integer, String, Boolean
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+
+
 
 My_user = 'admin'
 My_password = 'admin'
