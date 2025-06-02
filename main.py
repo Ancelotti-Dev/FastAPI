@@ -7,7 +7,11 @@ from sqlalchemy import create_engine, Column, Integer, String, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
+DATABASE_URL = "sqlite:///./tarefas.db"
 
+engine = create_engine(DATABASE_URL, connect_args_={"check_same_thread": False})
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
 
 My_user = 'admin'
 My_password = 'admin'
@@ -18,10 +22,13 @@ app = FastAPI()
 
 Dict_tarefinhas = {}
 
-class Tarefa(BaseModel):
-    nome: str
-    descricao: str
-    concluida: bool = False
+class Tarefa(Base):
+    __tablename__ = "tarefas"
+    id = Column(Integer, primary_key=True, index=True)
+    nome = Column(String, unique=True, index=True)
+    descricao = Column(String, index=True)
+    concluida = Column(Boolean, default=False)
+
 
 def autenticate_user(credentials: HTTPBasicCredentials = Depends(security)):
     is_username_correct = secrets.compare_digest(credentials.username, My_user)
