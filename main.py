@@ -36,6 +36,13 @@ class TarefaModel(BaseModel):
 
 Base.metadata.create_all(bind=engine)
 
+# Função para manipular o Banco de Dados
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 def autenticate_user(credentials: HTTPBasicCredentials = Depends(security)):
     is_username_correct = secrets.compare_digest(credentials.username, My_user)
