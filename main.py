@@ -28,6 +28,12 @@ class Tarefa(Base):
     nome = Column(String, unique=True, index=True)
     descricao = Column(String, index=True)
     concluida = Column(Boolean, default=False)
+
+class TarefaModel(BaseModel):
+    nome: str
+    descricap: str
+    concluida: bool = False
+
 Base.metadata.create_all(bind=engine)
 
 
@@ -87,7 +93,7 @@ def get_tarefinhas(
     }
 
 @app.post("/adiciona")
-def add_tarefa(tarefa: Tarefa , credentials: HTTPBasicCredentials = Depends(autenticate_user)):
+def add_tarefa(tarefa: TarefaModel , credentials: HTTPBasicCredentials = Depends(autenticate_user)):
     if tarefa.nome in Dict_tarefinhas:
         raise HTTPException(status_code=400, detail="Tarefa já existe")
     Dict_tarefinhas[tarefa.nome] = tarefa.dict()
