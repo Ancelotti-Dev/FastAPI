@@ -51,7 +51,7 @@ def get_db():
 def autenticate_user(credentials: HTTPBasicCredentials = Depends(security)):
     is_username_correct = secrets.compare_digest(credentials.username, My_user)
     is_password_correct = secrets.compare_digest(credentials.password, My_password)
-    
+
     if not (is_username_correct and is_password_correct):
         raise HTTPException(
             status_code = 401,
@@ -145,3 +145,15 @@ def delete_tarefa(id: int, db: Session= Depends(get_db), credentials: HTTPBasicC
     db.commit()
 
     return {"message": "Tarefa deletada com sucesso"}
+
+# ACID
+ # A - Atomicidade: Todas as operações de uma transação são concluídas com sucesso ou nenhuma delas é aplicada.
+ # C - Consistência: O banco de dados permanece em um estado consistente antes e depois da transação.
+ # I - Isolamento: As transações são isoladas umas das outras, garatindo que uma transição não afete a outra.
+ # D - Durabilidade: Uma vez que uma transição é confirmada, sua alteração é permanente, mesmo em caso de falha da aplicação ou do sistema.
+
+# ORM - Object Relational Mapping: É uma tecnica que permite mapear objetos de uma linguagem de programação para 
+# tabelas de um banco de dados relacional, facilitando a interação entre o codigo e o banco de dados.
+
+# SQLAlchemy: É uma biblioteca do Python que permite trabalhar com banco de dados relacionais de forma mais fácil,
+# ultilizando o conceito de ORM. Ela fornece uma camada de abstração para interagir com o banco de dados.
