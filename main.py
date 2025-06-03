@@ -5,7 +5,7 @@ import secrets
 import os
 from sqlalchemy import create_engine, Column, Integer, String, Boolean
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
 
 DATABASE_URL = "sqlite:///./tarefas.db"
 
@@ -64,48 +64,43 @@ def read_root():
 def get_tarefinhas(
     page: int = 1,
     limit: int = 10,
-    sort_by: str = "nome",
+    db: Session = Depends(get_db),
     credentials: HTTPBasicCredentials = Depends(autenticate_user)
 ):
     
     if page < 1 or limit < 1:
         raise HTTPException(status_code=400, detail="Não é possível acessar paginas menores que 0")
 
+
+    tarefas = db.query(Tarefa).offset((page - 1) * limit).limit(limit).all()
+
+
     if not Dict_tarefinhas:
         return { "detail": "Não há tarefas cadastradas"}
     
-
-    start = (page - 1) * limit
-    end = start + limit
-    
-    # Ordena as tarefas pelo campo escolhido
-    if sort_by not in ["nome", "descricao"]:
-        raise HTTPException(status_code=400, detail="Campo de ordenação inválido")
-
-    if sort_by == "nome":
-        Tarefas_ordenadas = sorted(Dict_tarefinhas.items(), key=lambda x: x[0])
-    else:
-        Tarefas_ordenadas = sorted(Dict_tarefinhas.items(), key=lambda x: x[1]["descricao"])
-    
-    tarefinhas_paginadas = [
-        {"nome": nome , "descricao": tarefa["descricao"], "concluida": tarefa["concluida"]}
-        for nome, tarefa in Tarefas_ordenadas[start:end]
-    ]
+    total_tarefas = db.query(Tarefa).count()
+    # Cria um dicionário com as tarefas
 
     return {
         "page": page,
         "limit": limit,
-        "tarefinhas": tarefinhas_paginadas,
-        "total": len(Dict_tarefinhas)
+        "total": len(Dict_tarefinhas),
+        "tarefinhas": [{"nome": tarefa.nome, "descricao": tarefa.descricao, "cocluida": tarefa.concluida} for tarefa in tarefas]
     }
 
 @app.post("/adiciona")
-def add_tarefa(tarefa: TarefaModel , credentials: HTTPBasicCredentials = Depends(autenticate_user)):
-    if tarefa.nome in Dict_tarefinhas:
-        raise HTTPException(status_code=400, detail="Tarefa já existe")
-    Dict_tarefinhas[tarefa.nome] = tarefa.dict()
+def add_tarefa(tarefa: TarefaModel, db: Session = Depends(get_db), credentials: HTTPBasicCredentials = Depends(autenticate_user)):
+    db_tarefa = db.query(Tarefa)(Tarefa.nome == TarefaModel.nome, Tarefa.descricao == TarefaModel.descricao).first()
+    
+    if db_tarefa:
+        raise HTTPException(status_code=400, detail="Essa Tarefa já existe irmão!!!")
+    
+    new_tarefa = Tarefa(nome=tarefa.nome, descricao=tarefa.descricao, concluida=tarefa.concluida)
+    db.add(new_tarefa)
+    db.commit()
+    db.refresh(new_tarefa)
 
-    return {"message": "Tarefa adicionada com sucesso"}
+    return {"message": "Tarefa foi adicionada com sucesso!", "tarefa": new_tarefa}
 
 @app.put("/concluida/{nome}")
 def tarefa_concluida(nome: str, credentials: HTTPBasicCredentials = Depends(autenticate_user)):
