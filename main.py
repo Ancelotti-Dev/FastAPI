@@ -9,7 +9,7 @@ from sqlalchemy.orm import sessionmaker
 
 DATABASE_URL = "sqlite:///./tarefas.db"
 
-engine = create_engine(DATABASE_URL, connect_args_={"check_same_thread": False})
+engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
@@ -28,6 +28,7 @@ class Tarefa(Base):
     nome = Column(String, unique=True, index=True)
     descricao = Column(String, index=True)
     concluida = Column(Boolean, default=False)
+Base.metadata.create_all(bind=engine)
 
 
 def autenticate_user(credentials: HTTPBasicCredentials = Depends(security)):
