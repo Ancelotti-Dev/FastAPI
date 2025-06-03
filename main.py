@@ -20,7 +20,11 @@ My_password = 'admin'
 
 security = HTTPBasic()
 
-app = FastAPI()
+app = FastAPI(
+    title="Gerenciador de Tarefas",
+    description="API para gerenciar tarefas com autenticação básica",
+    version="1.1.0"
+)
 
 # Modelo da tabela Tarefa no banco de dados (SQLAlchemy)
 class Tarefa(Base):
