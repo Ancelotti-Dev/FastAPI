@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI, HTTPException, Depends
 from pydantic import BaseModel
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
@@ -7,7 +8,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 
 # Configuração do banco de dados SQLite
-DATABASE_URL = "sqlite:///./tarefas.db"
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 # Criação do engine e sessão do SQLAlchemy
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
@@ -15,8 +16,8 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 # Usuário e senha para autenticação básica
-My_user = 'admin'
-My_password = 'admin'
+My_user = os.getenv("My_user")
+My_password = os.getenv("My_password")
 
 security = HTTPBasic()
 

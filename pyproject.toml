@@ -1,0 +1,20 @@
+[project]
+name = "tarefa"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Ancelotti-Dev",email = "pedroh.moliveira20@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "sqlalchemy",
+    "pydantic"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
