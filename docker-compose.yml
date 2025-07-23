@@ -5,9 +5,13 @@ services:
     build: .
     container_name: tarefas
     ports:
-     - "8000:8000"
+      - "8000:8000"
     volumes:
-     - .:/app
-    environment:
-     - .env
+      - .:/app
+    env_file:
+      - .env
     command: ["poetry", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+    deploy:
+      replicas: 5
+      restart-policy:
+        condition: on-failure

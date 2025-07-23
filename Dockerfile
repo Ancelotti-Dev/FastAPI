@@ -4,8 +4,11 @@ RUN python --version
 
 WORKDIR /app
 
-# Update system packages to reduce vulnerabilities
-RUN apt-get update && apt-get upgrade -y && apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN pip install poetry
+
+COPY pyproject.toml poetry.lock ./
+
+RUN poetry config virtualenvs.create false && poetry install --no-root
 
 RUN pip install --upgrade pip && pip install poetry
 
